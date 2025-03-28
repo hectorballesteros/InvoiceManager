@@ -1,9 +1,11 @@
 using InvoiceManager.Application.Services;
 using InvoiceManager.Domain.Interfaces;
 using InvoiceManager.Infrastructure.Repositories;
+using InvoiceManager.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,9 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<InvoiceImportService>();
+builder.Services.AddScoped<InvoiceService>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
-
+builder.Services.AddDbContext<InvoiceManagerContext>(options =>
+    options.UseSqlite("Data Source=../InvoiceManager.Infrastructure/invoice_manager.db"));
 var app = builder.Build();
 app.MapControllers();
 
@@ -29,6 +32,7 @@ var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
+
 
 app.MapGet("/weatherforecast", () =>
 {

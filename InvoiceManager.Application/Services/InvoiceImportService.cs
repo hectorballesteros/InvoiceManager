@@ -3,6 +3,7 @@ using InvoiceManager.Domain.Interfaces;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace InvoiceManager.Application.Services
 {
@@ -12,71 +13,101 @@ namespace InvoiceManager.Application.Services
     {
         public bool Success { get; set; }
         public string Message { get; set; }
-        public List<Invoice> Data { get; set; }
-        public List<Invoice> InvalidInvoices { get; set; }
+        public List<string> Errors { get; set; }
     }
+
     
-    public class InvoiceImportService
+    public class InvoiceService
     {
         private readonly IInvoiceRepository _invoiceRepository;
+         private readonly ILogger<InvoiceService> _logger;
 
-        public InvoiceImportService(IInvoiceRepository invoiceRepository)
+        public InvoiceService(IInvoiceRepository invoiceRepository, ILogger<InvoiceService> logger)
         {
             _invoiceRepository = invoiceRepository;
+             _logger = logger;
         }
 
-        public async Task<ImportResult> ImportInvoicesService(List<Invoice> invoices)
+
+        public async Task<List<Invoice>> GetAllInvoices()
         {
-            var validInvoices = new List<Invoice>();
-            var invalidInvoices = new List<Invoice>();
-            string errorMessage = "";
+            return await _invoiceRepository.GetAllAsync();
+        }
 
-            // Validación de los datos de las facturas
-            foreach (var invoice in invoices)
+
+    public async Task<ImportResult> ImportInvoices(List<Invoice> invoices)
+    {
+        var validInvoices = new List<Invoice>();
+        var errors = new List<string>();
+
+        foreach (var invoice in invoices)
+        {
+            // Primero, buscar si el cliente ya existe
+            if (invoice.Customer != null)
             {
-                // Calcular el subtotal total de la factura sumando los subtotales de los detalles
-                decimal calculatedSubtotal = 0;
-                foreach (var detail in invoice.InvoiceDetail)
+                var existingCustomer = await _invoiceRepository.GetCustomerByRunAsync(invoice.Customer.CustomerRun);
+                
+                if (existingCustomer != null)
                 {
-                    calculatedSubtotal += detail.Subtotal;
+                    // Si el cliente ya existe, asignamos el cliente existente
+                    invoice.Customer = existingCustomer;
                 }
-
-                // Verificar que la suma de los subtotales coincida con el total
-                if (invoice.TotalAmount != calculatedSubtotal)
+                else
                 {
-                    invalidInvoices.Add(invoice);
-                    continue; // Ignorar la factura con inconsistencias
+                    // Si el cliente no existe, lo creamos
+                    await _invoiceRepository.AddCustomerAsync(invoice.Customer);
                 }
-
-                // Calcular el estado de la factura (por ejemplo, "Issued", "Partial", "Cancelled")
-                invoice.InvoiceStatus = CalculateInvoiceStatus(invoice);
-
-                // Calcular el estado de pago (por ejemplo, "Pending", "Overdue", "Paid")
-                invoice.PaymentStatus = CalculatePaymentStatus(invoice);
-
-                // Agregar la factura válida a la lista de facturas válidas
-                validInvoices.Add(invoice);
             }
 
-            // Guardar solo las facturas válidas en la base de datos
-            foreach (var invoice in validInvoices)
+            if (!IsInvoiceSubtotalValid(invoice, out var error))
             {
-                await _invoiceRepository.AddAsync(invoice);
+                errors.Add(error);
+                continue;
             }
 
-            // Construir el mensaje
-            if (invalidInvoices.Count > 0)
+            invoice.InvoiceStatus = CalculateInvoiceStatus(invoice);
+            invoice.PaymentStatus = CalculatePaymentStatus(invoice);
+
+            if (invoice.Payment != null && string.IsNullOrEmpty(invoice.Payment.PaymentMethod))
             {
-                errorMessage = $"Se encontraron {invalidInvoices.Count} facturas inconsistentes.";
+                invoice.Payment = null;
             }
 
-            return new ImportResult
+            validInvoices.Add(invoice);
+        }
+
+        foreach (var invoice in validInvoices)
+        {
+            await _invoiceRepository.AddAsync(invoice);
+        }
+
+        string successMessage = validInvoices.Count > 0
+            ? $"Se importaron correctamente {validInvoices.Count} factura(s)."
+            : "No se importó ninguna factura.";
+
+        return new ImportResult
+        {
+            Success = true,
+            Message = successMessage,
+            Errors = errors
+        };
+    }
+
+
+
+
+        private bool IsInvoiceSubtotalValid(Invoice invoice, out string errorMessage)
+        {
+            decimal calculatedSubtotal = invoice.InvoiceDetail.Sum(d => d.Subtotal);
+
+            if (invoice.TotalAmount != calculatedSubtotal)
             {
-                Success = true,
-                Message = errorMessage,
-                InvalidInvoices = invalidInvoices,
-                Data = validInvoices
-            };
+                errorMessage = $"Se omitió la factura {invoice.InvoiceNumber} porque el total no coincide con los subtotales.";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
         }
 
         private string CalculateInvoiceStatus(Invoice invoice)
