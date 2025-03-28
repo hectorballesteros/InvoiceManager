@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "zNuG/19PYGOakKWGRyEOER80ACJ4kYWdCr6tSJw9pJv+cuq4Z5vmMfG8b/zvYOiqXGXX4DhmqsooSLCX1ZDKaQ==",
+  "dgSpecHash": "oJ+z1LRgTzvkibyZTCizNURVWMZS4dZHE7do7jzGIT1FMeuYVnqZFYCzhdxVWIUV6Y/IY5V2YFrTgy232HCMvg==",
   "success": true,
   "projectFilePath": "/home/hector/Escritorio/InvoiceManager/InvoiceManager.Infrastructure/InvoiceManager.Infrastructure.csproj",
   "expectedPackageFiles": [
@@ -34,6 +34,7 @@
     "/home/hector/.nuget/packages/microsoft.extensions.options/9.0.3/microsoft.extensions.options.9.0.3.nupkg.sha512",
     "/home/hector/.nuget/packages/microsoft.extensions.primitives/9.0.3/microsoft.extensions.primitives.9.0.3.nupkg.sha512",
     "/home/hector/.nuget/packages/mono.texttemplating/3.0.0/mono.texttemplating.3.0.0.nupkg.sha512",
+    "/home/hector/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
     "/home/hector/.nuget/packages/sqlitepclraw.bundle_e_sqlite3/2.1.10/sqlitepclraw.bundle_e_sqlite3.2.1.10.nupkg.sha512",
     "/home/hector/.nuget/packages/sqlitepclraw.core/2.1.10/sqlitepclraw.core.2.1.10.nupkg.sha512",
     "/home/hector/.nuget/packages/sqlitepclraw.lib.e_sqlite3/2.1.10/sqlitepclraw.lib.e_sqlite3.2.1.10.nupkg.sha512",

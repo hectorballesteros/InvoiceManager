@@ -1,0 +1,13 @@
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/bin/Debug/net8.0/InvoiceManager.Domain.deps.json
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/bin/Debug/net8.0/InvoiceManager.Domain.dll
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/bin/Debug/net8.0/InvoiceManager.Domain.pdb
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/obj/Debug/net8.0/InvoiceManager.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/obj/Debug/net8.0/InvoiceManager.Domain.AssemblyInfoInputs.cache
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/obj/Debug/net8.0/InvoiceManager.Domain.AssemblyInfo.cs
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/obj/Debug/net8.0/InvoiceManager.Domain.csproj.CoreCompileInputs.cache
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/obj/Debug/net8.0/InvoiceManager.Domain.sourcelink.json
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/obj/Debug/net8.0/InvoiceManager.Domain.dll
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/obj/Debug/net8.0/refint/InvoiceManager.Domain.dll
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/obj/Debug/net8.0/InvoiceManager.Domain.pdb
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/obj/Debug/net8.0/ref/InvoiceManager.Domain.dll
+/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/obj/Debug/net8.0/InvoiceManager.Domain.csproj.AssemblyReference.cache

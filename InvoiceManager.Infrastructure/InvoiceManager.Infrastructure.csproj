@@ -18,4 +18,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\InvoiceManager.Domain\InvoiceManager.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

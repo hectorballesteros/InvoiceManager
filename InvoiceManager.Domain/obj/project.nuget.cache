@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "bis2fFA4jCh20Ua80JYsCF5SyByFvtqRZQT4BIDi8uB+YiXj57ct4jhNxkj5kMEGoF8LQSm32EF+VjTisa+Isg==",
+  "dgSpecHash": "QRNuvL6sVRY6381BIIE5zH0gfMXMkTbv+0/Hxu3nBfcHWzzO0Dy6PHkiqi/hxc6QhmrXttsB7TmRf6H/Qo2yOw==",
   "success": true,
   "projectFilePath": "/home/hector/Escritorio/InvoiceManager/InvoiceManager.Domain/InvoiceManager.Domain.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/home/hector/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
   "logs": []
 }

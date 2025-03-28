@@ -8,7 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.14" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\InvoiceManager.Application\InvoiceManager.Application.csproj" />
+    <ProjectReference Include="..\InvoiceManager.Domain\InvoiceManager.Domain.csproj" />
+    <ProjectReference Include="..\InvoiceManager.Infrastructure\InvoiceManager.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
