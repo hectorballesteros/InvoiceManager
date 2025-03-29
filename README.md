@@ -27,6 +27,8 @@ cd InvoiceManager
 docker-compose up -d --build
 ```
 
+Posterior a eso, visitar el navegador: http://localhost:5173
+
 ### 3. Usuario inicial
 -username = hector
 -password = hectorfinix
