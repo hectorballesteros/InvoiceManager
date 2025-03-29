@@ -1,50 +1,44 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { createContext, useContext, useEffect, useState } from 'react';
+import axios from 'axios';
 
-// Crear el contexto
 const AuthContext = createContext();
 
-// Hook personalizado
-export const useAuth = () => useContext(AuthContext);
-
-// Provider del contexto
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null); // puede tener nombre, rol, etc.
-  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const isAuthenticated = !!user;
 
   useEffect(() => {
-    // Verificar si hay sesión persistida
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
-    }
+    const checkSession = async () => {
+      try {
+        const res = await axios.get('/auth/me');
+        setUser(res.data);
+      } catch (err) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkSession();
   }, []);
 
-  const login = ({ username, password }) => {
-    // Acá simulás la validación
-    if (username === "admin" && password === "123") {
-      const fakeUser = { name: "Admin", role: "Administrador" };
-      localStorage.setItem("user", JSON.stringify(fakeUser));
-      setUser(fakeUser);
-      setIsAuthenticated(true);
-      navigate("/home");
-    } else {
-      throw new Error("Credenciales inválidas");
-    }
+  const login = async (username, password) => {
+    const res = await axios.post('/auth/login', { username, password });
+    setUser(res.data);
   };
 
-  const logout = () => {
-    localStorage.removeItem("user");
+  const logout = async () => {
+    await axios.post('/auth/logout');
     setUser(null);
-    setIsAuthenticated(false);
-    navigate("/login");
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+export const useAuth = () => useContext(AuthContext);

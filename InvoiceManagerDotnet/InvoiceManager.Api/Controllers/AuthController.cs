@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
         var user = await _authService.Authenticate(request.Username, request.Password);
 
         if (user == null)
-            return Unauthorized("Credenciales inválidas");
+            return Unauthorized(new { message ="Credenciales inválidas, revisa tu usuario y contraseña."});
 
         var token = _authService.GenerateToken(user);
 

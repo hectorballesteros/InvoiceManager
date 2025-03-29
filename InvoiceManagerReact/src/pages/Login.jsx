@@ -35,10 +35,10 @@ const Login = () => {
 
     try {
       // login del contexto
-      await login({ username, password });
-      navigate('/inicio'); // solo si login fue exitoso
+      await login(username, password );
+      navigate('/home');
     } catch (err) {
-      setErrors({ general: err.message || 'Credenciales incorrectas' });
+      setErrors({ general: err.response?.data?.message || 'Credenciales incorrectas' });
     } finally {
       setLoading(false);
     }
