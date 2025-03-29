@@ -5,6 +5,8 @@ using System.IO;
 using System.Threading.Tasks;
 using InvoiceManager.Api.Models;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace InvoiceManager.Api.Controllers
 {
@@ -19,6 +21,7 @@ namespace InvoiceManager.Api.Controllers
             _invoiceService = invoiceService;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllInvoices()
         {
@@ -42,6 +45,7 @@ namespace InvoiceManager.Api.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("{invoiceNumber}")]
         public async Task<IActionResult> GetInvoiceByNumber(int invoiceNumber)
         {
@@ -70,7 +74,8 @@ namespace InvoiceManager.Api.Controllers
                 });
             }
         }
-
+        
+        [Authorize]
         [HttpGet("status")]
         public async Task<IActionResult> GetInvoicesByStatus([FromQuery] string? invoiceStatus, [FromQuery] string? paymentStatus)
         {
@@ -101,6 +106,7 @@ namespace InvoiceManager.Api.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("import")]
         public async Task<IActionResult> ImportInvoices([FromForm] IFormFile file)
         {
@@ -150,6 +156,7 @@ namespace InvoiceManager.Api.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("{invoiceNumber}/credit-note")]
         public async Task<IActionResult> AddCreditNoteToInvoice(int invoiceNumber, [FromBody] CreditNoteRequest request)
         {

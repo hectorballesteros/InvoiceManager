@@ -16,6 +16,7 @@ namespace InvoiceManager.Infrastructure
         public DbSet<Payment> Payments { get; set; }
         public DbSet<CreditNote> CreditNotes { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<User> Users { get; set; }
 
         // Configuración de relaciones
         protected override void OnModelCreating(ModelBuilder modelBuilder)
