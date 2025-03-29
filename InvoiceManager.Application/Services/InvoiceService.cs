@@ -30,7 +30,7 @@ namespace InvoiceManager.Application.Services
 
         public async Task<List<Invoice>> GetAllInvoices()
         {
-            return await _invoiceRepository.GetAllAsync();
+            return await _invoiceRepository.GetAllInvoicesAsync();
         }
 
         public async Task<ImportResult> ImportInvoices(List<Invoice> invoices)
@@ -84,7 +84,7 @@ namespace InvoiceManager.Application.Services
 
             foreach (var invoice in validInvoices)
             {
-                await _invoiceRepository.AddAsync(invoice);
+                await _invoiceRepository.AddInvoiceAsync(invoice);
             }
 
             string successMessage = validInvoices.Count > 0
@@ -221,7 +221,6 @@ namespace InvoiceManager.Application.Services
 
             return "Issued";
         }
-
 
         private string CalculatePaymentStatus(Invoice invoice)
         {
