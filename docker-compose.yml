@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "5218:5218"
+    networks:
+      - app-network
+    volumes:
+      - ./InvoiceManagerDotnet/InvoiceManager.Infrastructure/invoice_manager.db:/app/invoice_manager.db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    environment:
+     - VITE_API_URL=http://localhost:5218/api
+
+networks:
+  app-network:
+    driver: bridge

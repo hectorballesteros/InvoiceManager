@@ -13,10 +13,10 @@ namespace InvoiceManager.Infrastructure.Seeders
                 var hasher = new PasswordHasher<User>();
                 var user = new User
                 {
-                    Username = "",
-                    Role = ""
+                    Username = "hector",
+                    Role = "Admin"
                 };
-                user.Password = hasher.HashPassword(user, "");
+                user.Password = hasher.HashPassword(user, "hectorfinix");
 
                 context.Users.Add(user);
                 context.SaveChanges();

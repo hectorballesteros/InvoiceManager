@@ -1,0 +1,14 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS dev
+WORKDIR /app
+
+COPY ./InvoiceManagerDotnet/ ./
+
+# Restaurar dependencias
+RUN dotnet restore "./InvoiceManager.Api/InvoiceManager.Api.csproj"
+
+# Exponer puerto
+EXPOSE 5218
+
+# Comando en modo watch
+CMD ["dotnet", "watch", "--project", "InvoiceManager.Api/InvoiceManager.Api.csproj", "run"]
+
