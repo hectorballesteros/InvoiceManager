@@ -46,7 +46,10 @@ namespace InvoiceManager.Infrastructure.Repositories
         public async Task<Invoice> GetInvoiceByNumberAsync(int invoiceNumber)
         {
             return await _context.Invoices
-                .Include(i => i.InvoiceCreditNote) 
+                .Include(i => i.InvoiceDetail)
+                .Include(i => i.Customer)
+                .Include(i => i.Payment)
+                .Include(i => i.InvoiceCreditNote)
                 .FirstOrDefaultAsync(i => i.InvoiceNumber == invoiceNumber);
         }
 
@@ -80,8 +83,12 @@ namespace InvoiceManager.Infrastructure.Repositories
                 query = query.Where(i => i.PaymentStatus == paymentStatus);  // Filtro por PaymentStatus
             }
 
-            return await query.Include(i => i.Customer) // Incluir información del cliente
-                              .ToListAsync();
+            return await query
+                .Include(i => i.InvoiceDetail)
+                .Include(i => i.Customer)
+                .Include(i => i.Payment)
+                .Include(i => i.InvoiceCreditNote)
+                .ToListAsync();
         }
 
         // Agregar una nota de crédito

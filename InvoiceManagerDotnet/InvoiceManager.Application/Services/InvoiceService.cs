@@ -133,7 +133,7 @@ namespace InvoiceManager.Application.Services
             // Validar que la nueva NC no exceda lo disponible
             if (creditNoteAmount > remainingBalance)
             {
-                errors.Add($"El monto de la nota de crédito ({creditNoteAmount}) excede el saldo pendiente ({remainingBalance}).");
+                errors.Add($"El monto de la nota de crédito (${creditNoteAmount}) excede el saldo pendiente (${remainingBalance}).");
                 return new ImportResult
                 {
                     Success = false,
@@ -170,7 +170,7 @@ namespace InvoiceManager.Application.Services
             return new ImportResult
             {
                 Success = true,
-                Message = $"Nota de crédito de {creditNoteAmount:C} agregada correctamente. Saldo restante: {updatedRemaining:C}.",
+                Message = $"Nota de crédito de ${creditNoteAmount} agregada correctamente. Saldo restante: ${updatedRemaining}.",
                 Errors = errors
             };
         }

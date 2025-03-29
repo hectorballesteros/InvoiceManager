@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './layouts/Sidebar';
 import Login from './pages/Login';
-import Home from './pages/Home';
+import Invoices from './pages/Invoices';
 import PrivateRoute from './utils/PrivateRoute';
 import PublicRoute from './utils/PublicRoute';
 import { useAuth } from './contexts/AuthContext';
@@ -24,17 +24,17 @@ function App() {
             }
           />
           <Route
-            path="/home"
+            path="/facturas"
             element={
               <PrivateRoute>
-                <Home />
+                <Invoices />
               </PrivateRoute>
             }
           />
           <Route
             path="*"
             element={
-              <Navigate to={isAuthenticated ? '/home' : '/login'} />
+              <Navigate to={isAuthenticated ? '/facturas' : '/login'} />
             }
           />
         </Routes>

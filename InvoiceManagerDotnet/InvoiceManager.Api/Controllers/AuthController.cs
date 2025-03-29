@@ -6,6 +6,9 @@ using InvoiceManager.Domain.Interfaces;
 using InvoiceManager.Domain.Entities;
 using InvoiceManager.Api.Models;
 
+/// <summary>
+/// Controlador para autenticación de usuarios.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
@@ -17,6 +20,13 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
+    /// <summary>
+    /// Inicia sesión con credenciales de usuario.
+    /// </summary>
+    /// <param name="request">Credenciales de acceso (usuario y contraseña).</param>
+    /// <returns>Token JWT en cookie y datos del usuario autenticado.</returns>
+    /// <response code="200">Inicio de sesión exitoso.</response>
+    /// <response code="401">Credenciales inválidas.</response>
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
@@ -38,6 +48,11 @@ public class AuthController : ControllerBase
         return Ok(new { user.Username, user.Role });
     }
 
+    /// <summary>
+    /// Cierra sesión eliminando la cookie del token.
+    /// </summary>
+    /// <returns>Confirmación de cierre de sesión.</returns>
+    /// <response code="200">Sesión cerrada correctamente.</response>
     [HttpPost("logout")]
     public IActionResult Logout()
     {
@@ -45,6 +60,12 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Sesión cerrada" });
     }
 
+    /// <summary>
+    /// Obtiene información del usuario autenticado actual.
+    /// </summary>
+    /// <returns>Nombre de usuario y rol.</returns>
+    /// <response code="200">Usuario autenticado retornado correctamente.</response>
+    /// <response code="401">Usuario no autenticado.</response>
     [HttpGet("me")]
     [Authorize]
     public IActionResult Me()
