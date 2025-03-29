@@ -28,7 +28,6 @@ namespace InvoiceManager.Application.Services
              _logger = logger;
         }
 
-
         public async Task<List<Invoice>> GetAllInvoices()
         {
             return await _invoiceRepository.GetAllAsync();
@@ -175,16 +174,6 @@ namespace InvoiceManager.Application.Services
                 Errors = errors
             };
         }
-
-
-
-
-
-
-
-
-
-
 
         // Verificar si la factura ya existe por su número
         private async Task<bool> IsInvoiceExisting(int invoiceNumber)

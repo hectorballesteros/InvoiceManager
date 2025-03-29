@@ -42,56 +42,7 @@ namespace InvoiceManager.Api.Controllers
             }
         }
 
-        [HttpPost("import")]
-        public async Task<IActionResult> ImportInvoices([FromForm] IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-            {
-                return BadRequest(new { success = false, message = "No se ha subido ningún archivo." });
-            }
-
-            if (!file.FileName.EndsWith(".json"))
-            {
-                return BadRequest(new { success = false, message = "El archivo debe ser un archivo JSON." });
-            }
-
-            try
-            {
-                using (var stream = new StreamReader(file.OpenReadStream()))
-                {
-                    var content = await stream.ReadToEndAsync();
-                    
-                    // Intentamos deserializar el JSON
-                    var request = JsonSerializer.Deserialize<InvoiceImportRequest>(content);
-
-                    if (request == null || request.Invoices == null || request.Invoices.Count == 0)
-                    {
-                        return BadRequest(new { success = false, message = "El archivo JSON está vacío o no contiene facturas." });
-                    }
-
-                    var result = await _invoiceService.ImportInvoices(request.Invoices);
-
-                    if (!result.Success)
-                    {
-                        return BadRequest(new { success = false, message = result.Message });
-                    }
-
-                    return Ok(new { success = true, message = result.Message, errors = result.Errors });
-                }
-            }
-            catch (JsonException ex) // Capturamos la excepción específica de JSON
-            {
-                // Aquí puedes personalizar el mensaje de error
-                return BadRequest(new { success = false, message = "El archivo JSON tiene un formato incorrecto." });
-            }
-            catch (Exception ex)
-            {
-                // Captura cualquier otro error inesperado
-                return StatusCode(500, new { success = false, message = "Ocurrió un error al procesar el archivo." });
-            }
-        }
-
-        [HttpGet("number/{invoiceNumber}")]
+        [HttpGet("{invoiceNumber}")]
         public async Task<IActionResult> GetInvoiceByNumber(int invoiceNumber)
         {
             try
@@ -149,7 +100,57 @@ namespace InvoiceManager.Api.Controllers
                 });
             }
         }
-        [HttpPost("credit-note/add/{invoiceNumber}")]
+
+        [HttpPost("import")]
+        public async Task<IActionResult> ImportInvoices([FromForm] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { success = false, message = "No se ha subido ningún archivo." });
+            }
+
+            if (!file.FileName.EndsWith(".json"))
+            {
+                return BadRequest(new { success = false, message = "El archivo debe ser un archivo JSON." });
+            }
+
+            try
+            {
+                using (var stream = new StreamReader(file.OpenReadStream()))
+                {
+                    var content = await stream.ReadToEndAsync();
+                    
+                    // Intentamos deserializar el JSON
+                    var request = JsonSerializer.Deserialize<InvoiceImportRequest>(content);
+
+                    if (request == null || request.Invoices == null || request.Invoices.Count == 0)
+                    {
+                        return BadRequest(new { success = false, message = "El archivo JSON está vacío o no contiene facturas." });
+                    }
+
+                    var result = await _invoiceService.ImportInvoices(request.Invoices);
+
+                    if (!result.Success)
+                    {
+                        return BadRequest(new { success = false, message = result.Message });
+                    }
+
+                    return Ok(new { success = true, message = result.Message, errors = result.Errors });
+                }
+            }
+            catch (JsonException ex) // Capturamos la excepción específica de JSON
+            {
+                // Aquí puedes personalizar el mensaje de error
+                return BadRequest(new { success = false, message = "El archivo JSON tiene un formato incorrecto." });
+            }
+            catch (Exception ex)
+            {
+                // Captura cualquier otro error inesperado
+                return StatusCode(500, new { success = false, message = "Ocurrió un error al procesar el archivo." });
+            }
+        }
+
+        [HttpPost("{invoiceNumber}/credit-note")]
         public async Task<IActionResult> AddCreditNoteToInvoice(int invoiceNumber, [FromBody] CreditNoteRequest request)
         {
             try
@@ -168,11 +169,6 @@ namespace InvoiceManager.Api.Controllers
                 return StatusCode(500, new { success = false, message = "Ocurrió un error al agregar la nota de crédito.", errors = new List<string> { ex.Message } });
             }
         }
-
-
-
-
-
 
     }
 }
