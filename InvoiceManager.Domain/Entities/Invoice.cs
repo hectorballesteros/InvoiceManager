@@ -61,3 +61,4 @@ namespace InvoiceManager.Domain.Entities
         }
     }
 }
+

@@ -3,6 +3,7 @@ using System;
 using InvoiceManager.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InvoiceManager.Infrastructure.Migrations
 {
     [DbContext(typeof(InvoiceManagerContext))]
-    partial class InvoiceManagerContextModelSnapshot : ModelSnapshot
+    [Migration("20250328185703_InvoiceNumberId")]
+    partial class InvoiceNumberId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -36,12 +39,12 @@ namespace InvoiceManager.Infrastructure.Migrations
                         .HasColumnType("INTEGER")
                         .HasAnnotation("Relational:JsonPropertyName", "credit_note_number");
 
-                    b.Property<int>("InvoiceId")
+                    b.Property<int>("InvoiceNumber")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InvoiceId");
+                    b.HasIndex("InvoiceNumber");
 
                     b.ToTable("CreditNotes");
 
@@ -79,10 +82,10 @@ namespace InvoiceManager.Infrastructure.Migrations
 
             modelBuilder.Entity("InvoiceManager.Domain.Entities.Invoice", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("InvoiceNumber")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
-                        .HasAnnotation("Relational:JsonPropertyName", "id");
+                        .HasAnnotation("Relational:JsonPropertyName", "invoice_number");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("INTEGER")
@@ -95,10 +98,6 @@ namespace InvoiceManager.Infrastructure.Migrations
                     b.Property<DateTime>("InvoiceDate")
                         .HasColumnType("TEXT")
                         .HasAnnotation("Relational:JsonPropertyName", "invoice_date");
-
-                    b.Property<int>("InvoiceNumber")
-                        .HasColumnType("INTEGER")
-                        .HasAnnotation("Relational:JsonPropertyName", "invoice_number");
 
                     b.Property<string>("InvoiceStatus")
                         .IsRequired()
@@ -118,7 +117,7 @@ namespace InvoiceManager.Infrastructure.Migrations
                         .HasColumnType("TEXT")
                         .HasAnnotation("Relational:JsonPropertyName", "total_amount");
 
-                    b.HasKey("Id");
+                    b.HasKey("InvoiceNumber");
 
                     b.HasIndex("CustomerId");
 
@@ -132,7 +131,7 @@ namespace InvoiceManager.Infrastructure.Migrations
                         .HasColumnType("INTEGER")
                         .HasAnnotation("Relational:JsonPropertyName", "id");
 
-                    b.Property<int>("InvoiceId")
+                    b.Property<int>("InvoiceNumber")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ProductName")
@@ -154,7 +153,7 @@ namespace InvoiceManager.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InvoiceId");
+                    b.HasIndex("InvoiceNumber");
 
                     b.ToTable("InvoiceDetails");
 
@@ -168,7 +167,7 @@ namespace InvoiceManager.Infrastructure.Migrations
                         .HasColumnType("INTEGER")
                         .HasAnnotation("Relational:JsonPropertyName", "id");
 
-                    b.Property<int>("InvoiceId")
+                    b.Property<int>("InvoiceNumber")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("PaymentDate")
@@ -181,7 +180,7 @@ namespace InvoiceManager.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InvoiceId")
+                    b.HasIndex("InvoiceNumber")
                         .IsUnique();
 
                     b.ToTable("Payments");
@@ -193,7 +192,7 @@ namespace InvoiceManager.Infrastructure.Migrations
                 {
                     b.HasOne("InvoiceManager.Domain.Entities.Invoice", "Invoice")
                         .WithMany("InvoiceCreditNote")
-                        .HasForeignKey("InvoiceId")
+                        .HasForeignKey("InvoiceNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -215,7 +214,7 @@ namespace InvoiceManager.Infrastructure.Migrations
                 {
                     b.HasOne("InvoiceManager.Domain.Entities.Invoice", "Invoice")
                         .WithMany("InvoiceDetail")
-                        .HasForeignKey("InvoiceId")
+                        .HasForeignKey("InvoiceNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -226,7 +225,7 @@ namespace InvoiceManager.Infrastructure.Migrations
                 {
                     b.HasOne("InvoiceManager.Domain.Entities.Invoice", "Invoice")
                         .WithOne("Payment")
-                        .HasForeignKey("InvoiceManager.Domain.Entities.Payment", "InvoiceId")
+                        .HasForeignKey("InvoiceManager.Domain.Entities.Payment", "InvoiceNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

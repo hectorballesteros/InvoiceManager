@@ -34,68 +34,172 @@ namespace InvoiceManager.Application.Services
             return await _invoiceRepository.GetAllAsync();
         }
 
-
-    public async Task<ImportResult> ImportInvoices(List<Invoice> invoices)
-    {
-        var validInvoices = new List<Invoice>();
-        var errors = new List<string>();
-
-        foreach (var invoice in invoices)
+        public async Task<ImportResult> ImportInvoices(List<Invoice> invoices)
         {
-            // Primero, buscar si el cliente ya existe
-            if (invoice.Customer != null)
+            var validInvoices = new List<Invoice>();
+            var errors = new List<string>();
+
+            foreach (var invoice in invoices)
             {
-                var existingCustomer = await _invoiceRepository.GetCustomerByRunAsync(invoice.Customer.CustomerRun);
-                
-                if (existingCustomer != null)
+                // Verificar si la factura ya existe por su número
+                if (await IsInvoiceExisting(invoice.InvoiceNumber))
                 {
-                    // Si el cliente ya existe, asignamos el cliente existente
-                    invoice.Customer = existingCustomer;
+                    // Si la factura ya existe, omitimos la factura y agregamos un error
+                    errors.Add($"Se omitió la factura con número {invoice.InvoiceNumber} porque ya existe una factura con ese número.");
+                    continue;
                 }
-                else
+
+                // Buscar si el cliente ya existe
+                if (invoice.Customer != null)
                 {
-                    // Si el cliente no existe, lo creamos
-                    await _invoiceRepository.AddCustomerAsync(invoice.Customer);
+                    var existingCustomer = await IsCustomerExisting(invoice.Customer.CustomerRun);
+
+                    if (existingCustomer != null)
+                    {
+                        // Si el cliente ya existe, asignamos el cliente existente
+                        invoice.Customer = existingCustomer;
+                    }
+                    else
+                    {
+                        // Si el cliente no existe, lo creamos
+                        await _invoiceRepository.AddCustomerAsync(invoice.Customer);
+                    }
                 }
+
+                if (!IsInvoiceSubtotalValid(invoice, out var error))
+                {
+                    errors.Add(error);
+                    continue;
+                }
+
+                invoice.InvoiceStatus = CalculateInvoiceStatus(invoice);
+                invoice.PaymentStatus = CalculatePaymentStatus(invoice);
+
+                if (invoice.Payment != null && string.IsNullOrEmpty(invoice.Payment.PaymentMethod))
+                {
+                    invoice.Payment = null;
+                }
+
+                validInvoices.Add(invoice);
             }
 
-            if (!IsInvoiceSubtotalValid(invoice, out var error))
+            foreach (var invoice in validInvoices)
             {
-                errors.Add(error);
-                continue;
+                await _invoiceRepository.AddAsync(invoice);
             }
 
-            invoice.InvoiceStatus = CalculateInvoiceStatus(invoice);
-            invoice.PaymentStatus = CalculatePaymentStatus(invoice);
+            string successMessage = validInvoices.Count > 0
+                ? $"Se importaron correctamente {validInvoices.Count} factura(s)."
+                : "No se importó ninguna factura.";
 
-            if (invoice.Payment != null && string.IsNullOrEmpty(invoice.Payment.PaymentMethod))
+            return new ImportResult
             {
-                invoice.Payment = null;
-            }
-
-            validInvoices.Add(invoice);
+                Success = true,
+                Message = successMessage,
+                Errors = errors
+            };
         }
 
-        foreach (var invoice in validInvoices)
+        public async Task<Invoice> GetInvoiceByNumber(int invoiceNumber)
         {
-            await _invoiceRepository.AddAsync(invoice);
+            return await _invoiceRepository.GetInvoiceByNumberAsync(invoiceNumber);
         }
 
-        string successMessage = validInvoices.Count > 0
-            ? $"Se importaron correctamente {validInvoices.Count} factura(s)."
-            : "No se importó ninguna factura.";
-
-        return new ImportResult
+        public async Task<List<Invoice>> GetInvoicesByStatusAsync(string? invoiceStatus, string? paymentStatus)
         {
-            Success = true,
-            Message = successMessage,
-            Errors = errors
-        };
-    }
+            return await _invoiceRepository.GetInvoicesByStatusAsync(invoiceStatus, paymentStatus);
+        }
+
+        public async Task<ImportResult> AddCreditNoteToInvoice(int invoiceNumber, decimal creditNoteAmount)
+        {
+            var errors = new List<string>();
+
+            var invoice = await _invoiceRepository.GetInvoiceByNumberAsync(invoiceNumber);
+
+            if (invoice == null)
+            {
+                errors.Add("Factura no encontrada.");
+                return new ImportResult
+                {
+                    Success = false,
+                    Message = "No se encontró la factura con el número especificado.",
+                    Errors = errors
+                };
+            }
+
+            // Calcular notas de crédito actuales
+            var totalCredited = invoice.InvoiceCreditNote.Sum(c => c.CreditNoteAmount);
+            var remainingBalance = invoice.TotalAmount - totalCredited;
+
+            // Validar que la nueva NC no exceda lo disponible
+            if (creditNoteAmount > remainingBalance)
+            {
+                errors.Add($"El monto de la nota de crédito ({creditNoteAmount}) excede el saldo pendiente ({remainingBalance}).");
+                return new ImportResult
+                {
+                    Success = false,
+                    Message = "La nota de crédito excede el saldo pendiente de la factura.",
+                    Errors = errors
+                };
+            }
+
+            // Crear y agregar la nota de crédito
+            var creditNote = new CreditNote
+            {
+                InvoiceId = invoice.Id,
+                CreditNoteAmount = creditNoteAmount,
+                CreditNoteDate = DateTime.Now,
+                CreditNoteNumber = new Random().Next(1000, 9999)
+            };
+
+            await _invoiceRepository.AddCreditNoteAsync(creditNote);
+
+            // Recalcular total acreditado incluyendo la nueva NC
+            var updatedTotalCredited = totalCredited + creditNoteAmount;
+            var updatedRemaining = invoice.TotalAmount - updatedTotalCredited;
+
+            // Actualizar estado
+            invoice.InvoiceStatus = updatedTotalCredited switch
+            {
+                var t when t == invoice.TotalAmount => "Cancelled",
+                var t when t > 0 => "Partial",
+                _ => "Pending"
+            };
+
+            await _invoiceRepository.SaveAsync();
+
+            return new ImportResult
+            {
+                Success = true,
+                Message = $"Nota de crédito de {creditNoteAmount:C} agregada correctamente. Saldo restante: {updatedRemaining:C}.",
+                Errors = errors
+            };
+        }
 
 
 
 
+
+
+
+
+
+
+
+        // Verificar si la factura ya existe por su número
+        private async Task<bool> IsInvoiceExisting(int invoiceNumber)
+        {
+            var existingInvoice = await _invoiceRepository.GetInvoiceByNumberAsync(invoiceNumber);
+            return existingInvoice != null;
+        }
+
+        // Buscar si el cliente ya existe
+        private async Task<Customer> IsCustomerExisting(string customerRun)
+        {
+            return await _invoiceRepository.GetCustomerByRunAsync(customerRun);
+        }
+
+        // Validación del subtotal de la factura
         private bool IsInvoiceSubtotalValid(Invoice invoice, out string errorMessage)
         {
             decimal calculatedSubtotal = invoice.InvoiceDetail.Sum(d => d.Subtotal);
@@ -128,6 +232,7 @@ namespace InvoiceManager.Application.Services
 
             return "Issued";
         }
+
 
         private string CalculatePaymentStatus(Invoice invoice)
         {

@@ -43,7 +43,15 @@ namespace InvoiceManager.Infrastructure.Repositories
             return await _context.Invoices.FindAsync(id);
         }
 
-                public async Task<Customer> GetCustomerByRun(string customerRun)
+        public async Task<Invoice> GetInvoiceByNumberAsync(int invoiceNumber)
+        {
+            return await _context.Invoices
+                .Include(i => i.InvoiceCreditNote) 
+                .FirstOrDefaultAsync(i => i.InvoiceNumber == invoiceNumber);
+        }
+
+
+        public async Task<Customer> GetCustomerByRun(string customerRun)
         {
             return await _context.Customers
                 .FirstOrDefaultAsync(c => c.CustomerRun == customerRun);
@@ -59,6 +67,38 @@ namespace InvoiceManager.Infrastructure.Repositories
             await _context.Customers.AddAsync(customer);
             await _context.SaveChangesAsync();
         }
+        public async Task<List<Invoice>> GetInvoicesByStatusAsync(string? invoiceStatus, string paymentStatus)
+        {
+            IQueryable<Invoice> query = _context.Invoices;
+
+            // Filtrar por estado de la factura si se proporciona
+            if (!string.IsNullOrEmpty(invoiceStatus))
+            {
+                query = query.Where(i => i.InvoiceStatus == invoiceStatus);
+            }
+
+            // Filtrar por estado de pago si se proporciona
+            if (!string.IsNullOrEmpty(paymentStatus))
+            {
+                query = query.Where(i => i.PaymentStatus == paymentStatus);  // Filtro por PaymentStatus
+            }
+
+            return await query.Include(i => i.Customer) // Incluir información del cliente
+                              .ToListAsync();
+        }
+
+        public async Task AddCreditNoteAsync(CreditNote creditNote)
+        {
+            await _context.CreditNotes.AddAsync(creditNote); // Agregar la NC a la tabla CreditNotes
+            await _context.SaveChangesAsync(); // Guardar los cambios en la base de datos
+        }
+
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();  // Guarda todos los cambios pendientes en la base de datos
+        }
+
+
 
 
 
