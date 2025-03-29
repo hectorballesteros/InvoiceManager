@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/logo-finix.png";
+import { useAuth } from "../contexts/AuthContext";
 
-const Sidebar = ({ user = {}, routes = [], onLogout }) => {
+const Sidebar = ({routes = []}) => {
+  const { user, logout } = useAuth();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const userInitial = user?.name?.charAt(0).toUpperCase() || "?";
-
+  const userInitial = user?.username?.charAt(0).toUpperCase();
   const toggleSidebar = () => setIsOpen(!isOpen);
   const isActive = (path) => location.pathname === path;
 
@@ -41,18 +42,16 @@ const Sidebar = ({ user = {}, routes = [], onLogout }) => {
         </div>
 
         {/* Usuario + logout */}
-        <div className="flex items-center justify-center space-x-2 px-4 mb-6">
-          <div className="size-12 bg-green-500 text-white font-bold flex items-center justify-center rounded-full">
-            {userInitial}
-          </div>
-          <div className="w-px h-9 bg-gray-500"></div>
-          <div
-            onClick={onLogout}
-            className="size-10 bg-gray-200 hover:bg-gray-300 text-black font-bold flex items-center justify-center rounded-full cursor-pointer"
-            title="Cerrar sesión"
-          >
-            ⎋
-          </div>
+        <div className="flex items-center justify-center space-x-2 px-4">
+            <div className="size-12 bg-green-500 text-white font-bold flex items-center justify-center rounded-full">
+                { userInitial }
+            </div>
+            <div className="w-px h-9 bg-gray-500"></div>
+            <div className="size-10 bg-gray-200 text-black hover:bg-gray-300 font-bold flex items-center justify-center rounded-full cursor-pointer" onClick={logout}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+                </svg>
+            </div>
         </div>
 
         {/* Rutas */}
